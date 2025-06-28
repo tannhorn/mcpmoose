@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name            = "mcpmoose"
+version         = "0.1.0"
+description     = "MCP testing for the MOOSE framework."
+readme          = "README.md"
+license         = "MIT"          # SPDX string – keeps setuptools quiet
+authors         = [{name = "Lubomir Bures"}]
+requires-python = ">=3.10"
+
+dependencies = [
+  "openai>=1.0.0",
+  "python-dotenv>=1.0.0",
+  "typer[all]>=0.12.3",
+  "rich>=13.7.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "black>=24.4.0",
+  "ruff>=0.4.5",
+  "pylint>=3.2.2",
+  "mypy>=1.9.0",
+  "pytest>=8.2.0"
+]
+
+[project.scripts]
+extract-objects = "moose_mcp.extractor:main"
+
+# ───────── setuptools configuration ─────────
+[tool.setuptools]
+package-dir = {"" = "src"}              # <--  tell setuptools where code lives
+
+[tool.setuptools.packages.find]         # <--  automatic discovery under src/
+where   = ["src"]
+include = ["moose_mcp*"]                #  grab the package and any sub-packages
+
