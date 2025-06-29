@@ -15,7 +15,7 @@ load_dotenv()
 
 # MODEL = "gpt-3.5-turbo-0125"
 MODEL = "gpt-4o-mini"  # 128 k-token context
-OBJECT_FILE = os.getenv("MCP_OBJECT_LIST", "objects.json")
+OBJECT_FILE = os.getenv("MCP_OBJECT_LIST", "inputs/objects.json")
 
 # ------------------------------------------------------------------ helpers
 

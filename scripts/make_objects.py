@@ -13,8 +13,8 @@ import json
 import pathlib
 import sys
 
-SRC = pathlib.Path("syntax_full.json")
-DST = pathlib.Path("objects.json")
+SRC = pathlib.Path("inputs/syntax_full.json")
+DST = pathlib.Path("inputs/objects.json")
 
 try:
     data = json.loads(SRC.read_text(encoding="UTF8"))
