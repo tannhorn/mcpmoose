@@ -1,4 +1,4 @@
-# MCP MOOSE – Internal System Prompt
+# MCP MOOSE
 Model Context Protocol (MCP) testing for the MOOSE framework
 
 ---
