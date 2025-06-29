@@ -208,6 +208,7 @@ __marimo__/
 
 # Added
 .env
-inputs/syntax_full.inp
-inputs/syntax_full.json
-inputs/objects.json
+artifacts/syntax_full.inp
+artifacts/syntax_full.json
+artifacts/syntax_map.json
+artifacts/objects.json

@@ -15,7 +15,7 @@ load_dotenv()
 
 # MODEL = "gpt-3.5-turbo-0125"
 MODEL = "gpt-4o-mini"  # 128 k-token context
-OBJECT_FILE = os.getenv("MCP_OBJECT_LIST", "inputs/objects.json")
+OBJECT_FILE = os.getenv("MCP_OBJECT_LIST", "artifacts/objects.json")
 
 # ------------------------------------------------------------------ helpers
 
@@ -105,9 +105,9 @@ def call_extractor(prompt: str, allowed: list[str]) -> list[str]:
                 "content": (
                     "You are a selector of MOOSE objects.\n"
                     "RULES:\n"
-                    "• If you choose any HeatConduction kernel you MUST also pick:\n"
-                    "    - at least one Variables/* object (e.g. Variables/T).\n"
-                    "    - at least one BCs/* object (DirichletBC or NeumannBC).\n"
+                    "• If you choose any HeatConduction kernel you should also pick:\n"
+                    "    - at least one Variables/* object.\n"
+                    "    - at least one BCs/* object (e.g. DirichletBC or NeumannBC).\n"
                     "• Always pick one Mesh/* generator and one Outputs/* block.\n"
                     "Return the shortest list that satisfies the request and these rules.\n"
                     "• If unsure, include the mesh generator, a primary variable, appropriate"
@@ -124,29 +124,30 @@ def call_extractor(prompt: str, allowed: list[str]) -> list[str]:
     return args.get("objects", [])
 
 
+def extract_objects(prompt: str) -> list[str]:
+    """Run the extractor pipeline and post-process the list a bit."""
+    all_objects = load_object_names(OBJECT_FILE)
+    allowed = prefilter(prompt, all_objects)
+
+    picked = call_extractor(prompt, allowed)
+    picked = [n for n in picked if n in allowed]  # drop strays
+
+    ensure("Mesh/", "Mesh/GeneratedMeshGenerator", picked)
+    ensure("Outputs/", "Outputs/CSV", picked)
+
+    return picked
+
+
 # ------------------------------------------------------------------ entry-point
 
 
 def main() -> None:
-    """Main function"""
+    """Main function for extractor"""
     if len(sys.argv) < 2:
         sys.exit('Usage: extract-objects "<job description>"')
 
     user_prompt = sys.argv[1]
-    all_objects = load_object_names(OBJECT_FILE)
-
-    allowed = prefilter(user_prompt, all_objects)
-
-    # 2) POST-FILTER + COMPLETER ----------------------------------------------
-    picked = call_extractor(user_prompt, allowed)
-    picked = [n for n in picked if n in allowed]  # drop any invalid names
-
-    if any(o.startswith("Kernels/HeatConduction") for o in picked):
-        ensure("Variables/", "Variables/T", picked)
-        ensure("BCs/", "BCs/DirichletBC", picked)
-
-    ensure("Mesh/", "Mesh/GeneratedMesh", picked)
-    ensure("Outputs/", "Outputs/CSV", picked)
+    picked = extract_objects(user_prompt)
 
     print(json.dumps(picked, indent=2))
 
